@@ -1,10 +1,10 @@
 .DS_Store
 .idea
+
 *.orig
 *.backup
 xcshareddata
 xcuserdata
 build
-._*
-.svn
-*.xcworkspace
+Pods
+Podfile.*
