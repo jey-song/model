@@ -18,9 +18,8 @@ typedef enum: NSInteger {
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, assign) USER_GENDER gender;
 @property (nonatomic, assign) NSTimeInterval time;
-@property (nonatomic, assign) int follower;
+@property (nonatomic, strong) NSNumber *follower;
 
 @property (nonatomic, strong) NSArray *icons;
-
 @property (nonatomic, strong) NSArray *custom_array;
 @end

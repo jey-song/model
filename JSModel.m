@@ -2,14 +2,16 @@
 //  JSModel.m
 //  model
 //
-//  Created by Jey on 16/10/14.
-//  Copyright © 2015年 Jey All rights reserved.
+//  Created by Jey on 22/3/16.
+//  Copyright © 2016年 Jey All rights reserved.
 //
 
 #import "JSModel.h"
+#import <objc/runtime.h>
 
 @interface JSModel () {
     NSMutableDictionary *__model_userInfo;
+    NSArray *__model_allkeys;
 }
 
 @end
@@ -68,13 +70,27 @@
         return;
     }
     NSEnumerator *enumeratorKey = [info keyEnumerator];
-    NSSet *keys = [self itemKeys];
+    NSArray *keys = [self customModelKeys];
     for (NSString *key in enumeratorKey) {
-        if ((!keys || [keys containsObject:key])
+        if (!(keys && [keys containsObject:key])
             && [self respondsToSelector:NSSelectorFromString(key)]) {
             NSObject *value = info[key];
             if ([value isKindOfClass:[NSNull class]]) {
                 value = nil;
+            } else if ([value isKindOfClass:[NSDictionary class]]) {
+                objc_property_t p = class_getProperty(self.class, [key UTF8String]);
+                NSString *attributes = [NSString stringWithUTF8String:property_getAttributes(p)];
+                NSArray *sp = [attributes componentsSeparatedByString:@"\""];
+                if ([sp count] >= 2) {
+                    NSString *className = [sp objectAtIndex:1];
+                    if (className && ![className hasPrefix:@"NSDictionary"]) {
+                        Class c = NSClassFromString(className);
+                        if (c && [c isSubclassOfClass:[JSModel class]]) {
+                            id model = [c modelFromInfo:(NSDictionary *)value];
+                            value = model;
+                        }
+                    }
+                }
             }
             [self setValue:value forKey:key];
         }
@@ -94,7 +110,7 @@
 
 #pragma mark - Data
 - (NSDictionary *)dictionary {
-    return nil;
+    return [self dictionaryWithValuesForKeys:[self formatKeys]];
 }
 
 - (NSData *)jsonData {
@@ -118,10 +134,31 @@
     return j;
 }
 
-- (NSSet *)itemKeys {
+- (NSArray *)customModelKeys {
     return nil;
 }
 
+- (NSArray *)formatKeys {
+    return [self allPropertyNames];
+}
+
+// http://stackoverflow.com/questions/11774162/list-of-class-properties-in-objective-c
+- (NSArray *)allPropertyNames {
+    if (!__model_allkeys) {
+        unsigned count;
+        objc_property_t *properties = class_copyPropertyList([self class], &count);
+        NSMutableArray *rv = [NSMutableArray array];
+        unsigned i;
+        for (i = 0; i < count; i++) {
+            objc_property_t property = properties[i];
+            NSString *name = [NSString stringWithUTF8String:property_getName(property)];
+            [rv addObject:name];
+        }
+        free(properties);
+        __model_allkeys = [rv copy];
+    }
+    return __model_allkeys;
+}
 #pragma mark - Helper
 - (NSMutableDictionary *)model_userInfo {
     if (__model_userInfo == nil) {
@@ -134,6 +171,9 @@
     id value = nil;
     @try {
         value = [super valueForKey:key];
+        if ([value isKindOfClass:[JSModel class]]) {
+            value = [value dictionary];
+        }
     }
     @catch (NSException *exception) {
         NSLog(@"ERROR: current model does not include this key: <%@>", key);
