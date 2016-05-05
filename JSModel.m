@@ -110,7 +110,23 @@
 
 #pragma mark - Data
 - (NSDictionary *)dictionary {
-    return [self dictionaryWithValuesForKeys:[self formatKeys]];
+    int count = [[self formatKeys] count];
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:count];
+    @try {
+        for (NSString *key in [self formatKeys]) {
+            id value = [self valueForKey:key];
+            if (value
+                && [value isKindOfClass:[JSModel class]]) {
+                [dic setObject:[value dictionary] forKey:key];
+            } else {
+                [dic setObject:value ? : [NSNull null] forKey:key];
+            }
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"Model To dictionary format error : %@", exception);
+    }
+    return [dic copy];
+    //return [self dictionaryWithValuesForKeys:[self formatKeys]];
 }
 
 - (NSData *)jsonData {
@@ -167,18 +183,18 @@
     return __model_userInfo;
 }
 
-- (id)valueForKey:(NSString *)key {
-    id value = nil;
-    @try {
-        value = [super valueForKey:key];
-        if ([value isKindOfClass:[JSModel class]]) {
-            value = [value dictionary];
-        }
-    }
-    @catch (NSException *exception) {
-        NSLog(@"ERROR: current model does not include this key: <%@>", key);
-        value = nil;
-    }
-    return value;
-}
+//- (id)valueForKey:(NSString *)key {
+//    id value = nil;
+//    @try {
+//        value = [super valueForKey:key];
+//        if ([value isKindOfClass:[JSModel class]]) {
+//            value = [value dictionary];
+//        }
+//    }
+//    @catch (NSException *exception) {
+//        NSLog(@"ERROR: current model does not include this key: <%@>", key);
+//        value = nil;
+//    }
+//    return value;
+//}
 @end
