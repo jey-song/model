@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                = "JSModel"
-  s.version             = "0.1.0"
+  s.version             = "0.1.1"
   s.summary             = "JSModel is base model <json string <-> model>. Use key-value coding"
   s.description         = <<-DESC
                           JSModel is base model <json string <-> model>. Use key-value coding"
