@@ -110,7 +110,7 @@
 
 #pragma mark - Data
 - (NSDictionary *)dictionary {
-    int count = [[self formatKeys] count];
+    NSUInteger count = [[self formatKeys] count];
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:count];
     @try {
         for (NSString *key in [self formatKeys]) {
