@@ -106,11 +106,6 @@
 //#endif
                         }
                     }
-                    if ([value isKindOfClass:[NSDictionary class]]) {
-                        if (className && ![className hasPrefix:@"NSDictionary"]) {
-                            
-                        }
-                    }
                 }
             }
             [self setValue:value forKey:key];
