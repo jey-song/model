@@ -13,4 +13,6 @@ class Home: JSModel {
     var rooms_count: NSNumber?
     var owner: User?
     var rooms_name: [String]?
+    var owners: [NSDictionary]?
+    //var owners_user: [User]?
 }

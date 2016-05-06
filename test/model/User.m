@@ -7,6 +7,8 @@
 //
 
 #import "User.h"
+@implementation Icon
+@end
 
 @implementation User
 - (void)update:(NSDictionary *)info {

@@ -77,17 +77,38 @@
             NSObject *value = info[key];
             if ([value isKindOfClass:[NSNull class]]) {
                 value = nil;
-            } else if ([value isKindOfClass:[NSDictionary class]]) {
+            } else {
                 objc_property_t p = class_getProperty(self.class, [key UTF8String]);
                 NSString *attributes = [NSString stringWithUTF8String:property_getAttributes(p)];
                 NSArray *sp = [attributes componentsSeparatedByString:@"\""];
+                NSString *className = nil;
                 if ([sp count] >= 2) {
-                    NSString *className = [sp objectAtIndex:1];
-                    if (className && ![className hasPrefix:@"NSDictionary"]) {
-                        Class c = NSClassFromString(className);
-                        if (c && [c isSubclassOfClass:[JSModel class]]) {
+                    className = [sp objectAtIndex:1];
+                }
+                if (className) {
+                    Class c = NSClassFromString(className);
+                    if (c && ![value isKindOfClass:c]) {
+                        if ([value isKindOfClass:[NSNumber class]] && [c isSubclassOfClass:[NSString class]]) {
+                            value = [(NSNumber *)value stringValue];
+                        } else if ([value isKindOfClass:[NSString class]] && [c isSubclassOfClass:[NSNumber class]]) {
+                            value = @([(NSString *)value longLongValue]);
+                        } else if ([value isKindOfClass:[NSDictionary class]] && [c isSubclassOfClass:[JSModel class]]) {
                             id model = [c modelFromInfo:(NSDictionary *)value];
                             value = model;
+                        } else {
+                            NSString *reason = [NSString stringWithFormat:@"model: (%@) property: (%@) type: (%@), value type: (%@)", [self class], key, c, [value class]];
+                            NSException *exception = [NSException exceptionWithName:@"JSJsonDataFormatException" reason:reason userInfo:@{key: value}];
+//#ifdef DEBUG
+                            [exception raise];
+//#else
+//                            NSLog(@"JSJsonDataFormatError: %@", exception);
+//                            value = nil;
+//#endif
+                        }
+                    }
+                    if ([value isKindOfClass:[NSDictionary class]]) {
+                        if (className && ![className hasPrefix:@"NSDictionary"]) {
+                            
                         }
                     }
                 }
