@@ -13,18 +13,20 @@
 @implementation User
 - (void)update:(NSDictionary *)info {
     [super update:info];
-    id value = nil;
-    NSString *key = @"custom_array";
     @try {
+        NSString *key = @"custom_array";
+        id value = nil;
         value = [[info objectForKey:key] componentsSeparatedByString:@","];
+        [self setValue:value forKey:key];
+        
+        self.icons_class = [Icon modelsFromInfos:[info objectForKey:@"icons_class"]];
     }
     @catch (NSException *exception) {
     }
-    [self setValue:value forKey:key];
 }
 
 - (NSArray *)customModelKeys {
-    return @[@"custom_array"];
+    return @[@"custom_array", @"icons_class"];
 }
 
 - (BOOL)isEqual:(id)object {

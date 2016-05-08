@@ -26,7 +26,7 @@ typedef enum: NSInteger {
 @property (nonatomic, strong) NSNumber *follower;
 
 @property (nonatomic, strong) NSArray *icons;
-//@property (nonatomic, strong) NSArray <Icon *> *icons_class;
+@property (nonatomic, strong) NSArray <__kindof Icon *> *icons_class;
 @property (nonatomic, strong) NSArray *custom_array;
 
 @property (nonatomic, strong) NSString *error_num;

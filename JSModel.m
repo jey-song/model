@@ -126,17 +126,32 @@
 
 #pragma mark - Data
 - (NSDictionary *)dictionary {
-    NSUInteger count = [[self formatKeys] count];
+    NSArray *keys = [self formatKeys];
+    NSUInteger count = [keys count];
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:count];
     @try {
-        for (NSString *key in [self formatKeys]) {
+        for (NSString *key in keys) {
             id value = [self valueForKey:key];
-            if (value
-                && [value isKindOfClass:[JSModel class]]) {
-                [dic setObject:[value dictionary] forKey:key];
-            } else {
-                [dic setObject:value ? : [NSNull null] forKey:key];
+            if ([value isKindOfClass:[JSModel class]]) {
+                value = [value dictionary];
+            } else if ([value isKindOfClass:[NSArray class]]) {
+                NSMutableArray *l = nil;
+                for (id v in (NSArray *)value) {
+                    if (!l) {
+                        l = [[NSMutableArray alloc] initWithCapacity:[value count]];
+                    }
+                    if ([v isKindOfClass:[JSModel class]]) {
+                        [l addObject:[v dictionary]];
+                    } else {
+                        [l addObject:v];
+                    }
+                }
+                if (l) {
+                    value = [l copy];
+                }
+                
             }
+            [dic setObject:value ? : [NSNull null] forKey:key];
         }
     } @catch (NSException *exception) {
         NSLog(@"Model To dictionary format error : %@", exception);

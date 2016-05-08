@@ -53,8 +53,9 @@
     NSAssert(1458620423 == user.time, [self errorString:@selector(time)]);
     NSAssert(23 == [user.follower intValue], [self errorString:@selector(follower)]);
     NSAssert(2 == [user.icons count], [self errorString:@selector(icons)]);
-    //NSAssert(1 == [user.icons_class count], [self errorString:@selector(icons_class)]);
-    //NSAssert([user.icons_class isKindOfClass:[Icon class]], [self errorString:@selector(icons_class)]);
+    NSAssert(1 == [user.icons_class count], [self errorString:@selector(icons_class)]);
+    NSAssert([user.icons_class[0] isKindOfClass:[Icon class]], [self errorString:@selector(icons_class)]);
+    NSAssert([@"http://xxx.com/1" isEqual:[user.icons_class[0] url]], [self errorString:@selector(icons_class)]);
     NSAssert(3 == [user.custom_array count], [self errorString:@selector(custom_array)]);
     
     NSAssert([user.error_num isKindOfClass:[NSString class]] && [@"23" isEqualToString:user.error_num], [self errorString:@selector(error_num)]);
